@@ -10,12 +10,20 @@ public class GameplayController : MonoBehaviour {
     private GameObject arrow;
     [SerializeField]
     private GameObject controller;
+    [SerializeField]
+    private float forceJump = 10f;
 
     public static GameplayController instance = null;
 
     private GameObject myController;
     private SpriteRenderer arrowSprite;
     private Vector3 arrowBaseScale;
+    private Quaternion arrowBaseRotation;
+    private Vector3 vectorForce;
+    private float forcePull;
+    private float maxForceMul;
+    private Rigidbody2D rBody;
+    private bool canJump = false;
 
     void Awake()
     {
@@ -30,8 +38,11 @@ public class GameplayController : MonoBehaviour {
 
         myController = Instantiate(controller, transform.position, Quaternion.identity);
         myController.SetActive(false);
+
         arrowSprite = arrow.GetComponent<SpriteRenderer>();
         arrowBaseScale = arrow.transform.localScale;
+        arrowBaseRotation = arrow.transform.rotation;
+        rBody = GetComponent<Rigidbody2D>();
     }
 
     // Use this for initialization
@@ -43,18 +54,30 @@ public class GameplayController : MonoBehaviour {
 	void Update () {
         if (Input.GetMouseButtonDown(0))
         {
-            arrowSprite.enabled = true;
-            activateController();
+            if(rBody.velocity.y == 0)
+            {
+                activateController();
+                canJump = true;
+            }
         }
         else if(Input.GetMouseButtonUp(0))
         {
-            arrowSprite.enabled = false;
             desactivateController();
+
+            if (canJump)
+            {
+                jump();
+                canJump = false;
+            }
         }
     }
 
     void activateController()
     {
+        vectorForce = Vector3.up;
+
+        arrowSprite.enabled = true;
+
         Vector3 mousePos = Input.mousePosition;
 
         Vector3 objectPos = Camera.main.ScreenToWorldPoint(mousePos);
@@ -68,12 +91,29 @@ public class GameplayController : MonoBehaviour {
 
     void desactivateController()
     {
+        arrowSprite.enabled = false;
+
         myController.SetActive(false);
+
+        arrow.transform.localScale = arrowBaseScale;
+        arrow.transform.rotation = arrowBaseRotation;
+    }
+
+    void jump()
+    {
+        rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/maxForceMul))), ForceMode2D.Impulse);
     }
 
     public void moveArrow(float angle, float magnitude)
     {
         arrow.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         arrow.transform.localScale = new Vector3(arrowBaseScale.x + magnitude, arrowBaseScale.y + magnitude, arrowBaseScale.z);
+    }
+
+    public void setVectorForce(Vector3 vectorDirection, float maxRange)
+    {
+        vectorForce = vectorDirection.normalized;
+        forcePull = vectorDirection.magnitude;
+        maxForceMul = maxRange;
     }
 }
