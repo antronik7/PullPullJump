@@ -5,11 +5,15 @@ using UnityEngine;
 public class ControllerController : MonoBehaviour {
 
     [SerializeField]
-    private float rangePull = 1.5f;
-    [SerializeField]
     private GameObject smallController;
 
+    private float rangePull;
     private Vector3 previousPosition = new Vector3(0f, 0f, 0f);
+
+    private void Awake()
+    {
+        rangePull = GameplayController.instance.getMaxRangePull();    
+    }
 
     // Use this for initialization
     void Start () {
@@ -37,7 +41,8 @@ public class ControllerController : MonoBehaviour {
                 float rotZ = (Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg) - 180;
 
                 GameplayController.instance.moveArrow(rotZ, difference.magnitude);
-                GameplayController.instance.setVectorForce(difference, rangePull);
+                GameplayController.instance.setVectorForce(difference);
+                AnimationController.instance.squeezeCharacter(difference.magnitude);
             }
         }
 

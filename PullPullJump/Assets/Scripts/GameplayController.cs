@@ -5,13 +5,13 @@ using UnityEngine;
 public class GameplayController : MonoBehaviour {
 
     [SerializeField]
-    private Transform spriteScale;
-    [SerializeField]
     private GameObject arrow;
     [SerializeField]
     private GameObject controller;
     [SerializeField]
     private float forceJump = 10f;
+    [SerializeField]
+    private float rangePull = 1.5f;
 
     public static GameplayController instance = null;
 
@@ -21,7 +21,6 @@ public class GameplayController : MonoBehaviour {
     private Quaternion arrowBaseRotation;
     private Vector3 vectorForce;
     private float forcePull;
-    private float maxForceMul;
     private Rigidbody2D rBody;
     private bool canJump = false;
 
@@ -97,11 +96,14 @@ public class GameplayController : MonoBehaviour {
 
         arrow.transform.localScale = arrowBaseScale;
         arrow.transform.rotation = arrowBaseRotation;
+
+        AnimationController.instance.resetScale();
     }
 
     void jump()
     {
-        rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/maxForceMul))), ForceMode2D.Impulse);
+        rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/rangePull))), ForceMode2D.Impulse);
+        Debug.Log(rBody.velocity.magnitude);
     }
 
     public void moveArrow(float angle, float magnitude)
@@ -110,10 +112,14 @@ public class GameplayController : MonoBehaviour {
         arrow.transform.localScale = new Vector3(arrowBaseScale.x + magnitude, arrowBaseScale.y + magnitude, arrowBaseScale.z);
     }
 
-    public void setVectorForce(Vector3 vectorDirection, float maxRange)
+    public void setVectorForce(Vector3 vectorDirection)
     {
         vectorForce = vectorDirection.normalized;
         forcePull = vectorDirection.magnitude;
-        maxForceMul = maxRange;
+    }
+
+    public float getMaxRangePull()
+    {
+        return rangePull;
     }
 }
