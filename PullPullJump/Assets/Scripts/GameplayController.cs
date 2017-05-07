@@ -86,6 +86,8 @@ public class GameplayController : MonoBehaviour {
         myController.transform.parent = Camera.main.transform;
 
         myController.SetActive(true);
+
+        AnimationController.instance.startSqueeze(rangePull);
     }
 
     void desactivateController()
@@ -104,6 +106,7 @@ public class GameplayController : MonoBehaviour {
     {
         rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/rangePull))), ForceMode2D.Impulse);
         Debug.Log(rBody.velocity.magnitude);
+        AnimationController.instance.jumpSqueeze(forceJump);
     }
 
     public void moveArrow(float angle, float magnitude)
@@ -121,5 +124,10 @@ public class GameplayController : MonoBehaviour {
     public float getMaxRangePull()
     {
         return rangePull;
+    }
+
+    public float getVelocityY()
+    {
+        return rBody.velocity.y;
     }
 }

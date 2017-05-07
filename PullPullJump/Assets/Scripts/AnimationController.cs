@@ -4,14 +4,13 @@ using UnityEngine;
 
 public class AnimationController : MonoBehaviour {
 
-    [SerializeField]
-    private float maxSqueeze = 0.5f;
-
     public static AnimationController instance = null;
 
     private float maxMulSqueeze;
+    private float maxMulJump;
     private float baseScaleY;
     private bool doTheJumpSqueeze = false;
+    private Animator animator;
 
     private void Awake()
     {
@@ -25,30 +24,48 @@ public class AnimationController : MonoBehaviour {
             Destroy(gameObject);
 
         baseScaleY = transform.localScale.y;
+        animator = GetComponent<Animator>();
     }
 
     // Use this for initialization
     void Start () {
-        maxMulSqueeze = GameplayController.instance.getMaxRangePull();
+        
     }
 	
 	// Update is called once per frame
 	void Update () {
-		
+		if(doTheJumpSqueeze)
+        {
+            animator.Play("Jump", 0, Mathf.Clamp(Mathf.Abs(GameplayController.instance.getVelocityY()) / maxMulJump,0f,0.9999f));
+
+            if(GameplayController.instance.getVelocityY() <= 0)
+            {
+
+            }
+        }
 	}
 
     public void squeezeCharacter(float force)
     {
-        transform.localScale = new Vector3(transform.localScale.x, baseScaleY - (maxSqueeze * (force/maxMulSqueeze)), transform.localScale.z);
+        animator.Play("Squeeze", 0, Mathf.Clamp(force / maxMulSqueeze,0f,0.9999f));
+        //anim["Squeeze"].time = force / maxMulSqueeze;
+        //transform.localScale = new Vector3(transform.localScale.x, baseScaleY - (maxSqueeze * (force/maxMulSqueeze)), transform.localScale.z);
     }
 
-    public void jumpSqueeze()
+    public void jumpSqueeze(float maxVelocity)
     {
-
+        maxMulJump = maxVelocity;
+        doTheJumpSqueeze = true;
     }
 
     public void resetScale()
     {
-        transform.localScale = new Vector3(transform.localScale.x, baseScaleY, transform.localScale.z);
+        //transform.localScale = new Vector3(transform.localScale.x, baseScaleY, transform.localScale.z);
+    }
+
+    public void startSqueeze(float maxPull)
+    {
+        maxMulSqueeze = maxPull;
+        //animator.SetTrigger("Squeeze");
     }
 }
