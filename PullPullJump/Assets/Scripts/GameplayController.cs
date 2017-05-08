@@ -25,6 +25,7 @@ public class GameplayController : MonoBehaviour {
     private float forcePull;
     private Rigidbody2D rBody;
     private bool grounded = true;
+    private float previousVelocityY = 0f;
 
     void Awake()
     {
@@ -71,13 +72,21 @@ public class GameplayController : MonoBehaviour {
             }
         }
 
-        Debug.DrawRay(transform.position, new Vector2(0, -0.05f), Color.green);
+        Debug.DrawRay(transform.position, new Vector2(0, -0.01f), Color.green);
+    }
 
+    private void FixedUpdate()
+    {
         if (grounded)
             return;
 
         if (rBody.velocity.y <= 0 && checkIfGrounded())
+        {
             land();
+            return;
+        }
+
+        previousVelocityY = rBody.velocity.y;
     }
 
     void activateController()
@@ -121,13 +130,14 @@ public class GameplayController : MonoBehaviour {
     void land()
     {
         grounded = true;
-        rBody.velocity = new Vector2(0f, rBody.velocity.y);
         AnimationController.instance.landSqueeze(forceJump);
+        rBody.velocity = new Vector2(0f, rBody.velocity.y);
+        previousVelocityY = 0f;
     }
 
     bool checkIfGrounded()
     {
-        RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.down, 0.05f, groundCheckLayer);
+        RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.down, 0.01f, groundCheckLayer);
 
         if (hit2D)
             return true;
@@ -155,5 +165,10 @@ public class GameplayController : MonoBehaviour {
     public float getVelocityY()
     {
         return rBody.velocity.y;
+    }
+
+    public float getPreviousVelocityY()
+    {
+        return previousVelocityY;
     }
 }
