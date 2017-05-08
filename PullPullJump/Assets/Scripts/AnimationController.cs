@@ -37,11 +37,6 @@ public class AnimationController : MonoBehaviour {
 		if(doTheJumpSqueeze)
         {
             animator.Play("Jump", 0, Mathf.Clamp(Mathf.Abs(GameplayController.instance.getVelocityY()) / maxMulJump,0f,0.9999f));
-
-            if(GameplayController.instance.getVelocityY() <= 0)
-            {
-
-            }
         }
 	}
 
@@ -56,6 +51,16 @@ public class AnimationController : MonoBehaviour {
     {
         maxMulJump = maxVelocity;
         doTheJumpSqueeze = true;
+    }
+
+    public void landSqueeze(float maxVelocity)
+    {
+        Debug.Log(GameplayController.instance.getVelocityY());
+
+
+        doTheJumpSqueeze = false;
+        animator.Play("Land", 0, 0.0833f - (0.0833f * (GameplayController.instance.getVelocityY() / maxVelocity)));
+        //animator.SetTrigger("Land");
     }
 
     public void resetScale()

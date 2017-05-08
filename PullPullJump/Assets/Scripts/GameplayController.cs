@@ -12,6 +12,8 @@ public class GameplayController : MonoBehaviour {
     private float forceJump = 10f;
     [SerializeField]
     private float rangePull = 1.5f;
+    [SerializeField]
+    private LayerMask groundCheckLayer;
 
     public static GameplayController instance = null;
 
@@ -22,7 +24,7 @@ public class GameplayController : MonoBehaviour {
     private Vector3 vectorForce;
     private float forcePull;
     private Rigidbody2D rBody;
-    private bool canJump = false;
+    private bool grounded = true;
 
     void Awake()
     {
@@ -53,22 +55,29 @@ public class GameplayController : MonoBehaviour {
 	void Update () {
         if (Input.GetMouseButtonDown(0))
         {
-            if(rBody.velocity.y == 0)
+            if(grounded)
             {
                 activateController();
-                canJump = true;
             }
         }
         else if(Input.GetMouseButtonUp(0))
         {
             desactivateController();
 
-            if (canJump)
+            //rajouter canJump
+            if (grounded)
             {
                 jump();
-                canJump = false;
             }
         }
+
+        Debug.DrawRay(transform.position, new Vector2(0, -0.05f), Color.green);
+
+        if (grounded)
+            return;
+
+        if (rBody.velocity.y <= 0 && checkIfGrounded())
+            land();
     }
 
     void activateController()
@@ -105,8 +114,25 @@ public class GameplayController : MonoBehaviour {
     void jump()
     {
         rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/rangePull))), ForceMode2D.Impulse);
-        Debug.Log(rBody.velocity.magnitude);
         AnimationController.instance.jumpSqueeze(forceJump);
+        grounded = false;
+    }
+
+    void land()
+    {
+        grounded = true;
+        rBody.velocity = new Vector2(0f, rBody.velocity.y);
+        AnimationController.instance.landSqueeze(forceJump);
+    }
+
+    bool checkIfGrounded()
+    {
+        RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.down, 0.05f, groundCheckLayer);
+
+        if (hit2D)
+            return true;
+        else
+            return false;
     }
 
     public void moveArrow(float angle, float magnitude)
