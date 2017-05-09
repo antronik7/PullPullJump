@@ -40,8 +40,8 @@ public class ControllerController : MonoBehaviour {
             {
                 float rotZ = (Mathf.Atan2(difference.y, difference.x) * Mathf.Rad2Deg) - 180;
 
-                GameplayController.instance.moveArrow(rotZ, difference.magnitude);
                 GameplayController.instance.setVectorForce(difference);
+                GameplayController.instance.moveArrow(rotZ, difference.magnitude);
                 AnimationController.instance.squeezeCharacter(difference.magnitude);
             }
         }

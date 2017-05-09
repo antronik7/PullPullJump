@@ -22,10 +22,11 @@ public class GameplayController : MonoBehaviour {
     private Vector3 arrowBaseScale;
     private Quaternion arrowBaseRotation;
     private Vector3 vectorForce;
-    private float forcePull;
+    private float forcePull = 0f;
     private Rigidbody2D rBody;
     private bool grounded = true;
     private float previousVelocityY = 0f;
+    private TrajectorySimulation laTrajectoire;
 
     void Awake()
     {
@@ -45,6 +46,7 @@ public class GameplayController : MonoBehaviour {
         arrowBaseScale = arrow.transform.localScale;
         arrowBaseRotation = arrow.transform.rotation;
         rBody = GetComponent<Rigidbody2D>();
+        laTrajectoire = GetComponent<TrajectorySimulation>();
     }
 
     // Use this for initialization
@@ -149,6 +151,7 @@ public class GameplayController : MonoBehaviour {
     {
         arrow.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         arrow.transform.localScale = new Vector3(arrowBaseScale.x + magnitude, arrowBaseScale.y + magnitude, arrowBaseScale.z);
+        laTrajectoire.simulatePath(vectorForce, forcePull);
     }
 
     public void setVectorForce(Vector3 vectorDirection)
