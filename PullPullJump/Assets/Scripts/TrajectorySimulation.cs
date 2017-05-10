@@ -8,9 +8,12 @@ using UnityEngine;
 public class TrajectorySimulation : MonoBehaviour
 {
     [SerializeField]
+    private GameObject dot;
+    [SerializeField]
+    private LayerMask wallBounceMask;
 
-	// Number of segments to calculate - more gives a smoother line
-	public int segmentCount = 20;
+    // Number of segments to calculate - more gives a smoother line
+    public int segmentCount = 3;
  
 	// Length scale for each segment
 	public float segmentScale = 1;
@@ -27,7 +30,7 @@ public class TrajectorySimulation : MonoBehaviour
 
         for (int i = 0; i < segmentCount; i++)
         {
-            dots[i] = Instantiate
+            dots[i] = Instantiate(dot, new Vector2(-10, -10), Quaternion.identity) as GameObject;
         }
     }
 
@@ -37,54 +40,40 @@ public class TrajectorySimulation : MonoBehaviour
     /// </summary>
     public void simulatePath(Vector3 vectorForce, float forcePull)
 	{
-		Vector3[] segments = new Vector3[segmentCount];
- 
-		// The first line point is wherever the player's cannon, etc is
-		segments[0] = transform.position;
- 
-		// The initial velocity*******************************************************
-		Vector3 segVelocity = vectorForce * forcePull * Time.deltaTime;
- 
-		// reset our hit object
-		_hitObject = null;
- 
-		for (int i = 1; i < segmentCount; i++)
-		{
-			// Time it takes to traverse one segment of length segScale (careful if velocity is zero)
-			float segTime = (segVelocity.sqrMagnitude != 0) ? segmentScale / segVelocity.magnitude : 0;
- 
-			// Add velocity from gravity for this segment's timestep
-			segVelocity = segVelocity + Physics.gravity * segTime;
- 
-			// Check to see if we're going to hit a physics object
-			RaycastHit hit;
-			if (Physics.Raycast(segments[i - 1], segVelocity, out hit, segmentScale))
-			{
-				// remember who we hit
-				_hitObject = hit.collider;
- 
-				// set next position to the position where we hit the physics object
-				segments[i] = segments[i - 1] + segVelocity.normalized * hit.distance;
-				// correct ending velocity, since we didn't actually travel an entire segment
-				segVelocity = segVelocity - Physics.gravity * (segmentScale - hit.distance) / segVelocity.magnitude;
-				// flip the velocity to simulate a bounce
-				segVelocity = Vector3.Reflect(segVelocity, hit.normal);
- 
-				/*
-				 * Here you could check if the object hit by the Raycast had some property - was 
-				 * sticky, would cause the ball to explode, or was another ball in the air for 
-				 * instance. You could then end the simulation by setting all further points to 
-				 * this last point and then breaking this for loop.
-				 */
+        Vector3 pVelocity = -vectorForce * forcePull;
 
-                
-			}
-			// If our raycast hit no objects, then set the next position to the last one plus v*t
-			else
-			{
-				segments[i] = segments[i - 1] + segVelocity * segTime;
+        float velocity = Mathf.Sqrt((pVelocity.x * pVelocity.x) + (pVelocity.y * pVelocity.y));
+        float angle = Mathf.Rad2Deg * (Mathf.Atan2(pVelocity.y, pVelocity.x));
+        float fTime = 0;
+        int reflect = 1;
 
-			}
-		}
-	}
+        dots[0].transform.position = transform.position;
+
+        fTime += 0.1f;
+
+        for (int i = 1; i < segmentCount; i++)
+        {
+            float dx = velocity * fTime * Mathf.Cos(angle * Mathf.Deg2Rad);
+            float dy = velocity * fTime * Mathf.Sin(angle * Mathf.Deg2Rad) - (Physics2D.gravity.magnitude * fTime * fTime / 2.0f);
+            Vector3 pos = new Vector3(transform.position.x + (dx * reflect), transform.position.y + dy, 0);
+
+            dots[i].transform.position = pos;
+
+            Vector2 vectorDirectionRay = dots[i].transform.position - dots[i - 1].transform.position;
+            float lenghtRay = vectorDirectionRay.magnitude;
+            RaycastHit2D hit = Physics2D.Raycast(dots[i - 1].transform.position, vectorDirectionRay, lenghtRay, wallBounceMask);
+
+
+            //dots[i].transform.eulerAngles = new Vector3(0, 0, Mathf.Atan2(pVelocity.y - (Physics.gravity.magnitude) * fTime, pVelocity.x) * Mathf.Rad2Deg);
+            fTime += 0.1f;
+        }
+    }
+
+    public void resetTrajectory()
+    {
+        for (int i = 0; i < segmentCount; i++)
+        {
+            //dots[i].transform.position = new Vector3(-10, -10, -10);
+        }
+    }
 }

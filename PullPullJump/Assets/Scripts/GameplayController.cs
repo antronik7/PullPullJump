@@ -74,7 +74,7 @@ public class GameplayController : MonoBehaviour {
             }
         }
 
-        Debug.DrawRay(transform.position, new Vector2(0, -0.01f), Color.green);
+        Debug.DrawRay(transform.position, new Vector2(0, -0.45f), Color.green);
     }
 
     private void FixedUpdate()
@@ -95,7 +95,7 @@ public class GameplayController : MonoBehaviour {
     {
         vectorForce = Vector3.up;
 
-        arrowSprite.enabled = true;
+        //arrowSprite.enabled = true;
 
         Vector3 mousePos = Input.mousePosition;
 
@@ -112,7 +112,7 @@ public class GameplayController : MonoBehaviour {
 
     void desactivateController()
     {
-        arrowSprite.enabled = false;
+        //arrowSprite.enabled = false;
 
         myController.SetActive(false);
 
@@ -120,6 +120,7 @@ public class GameplayController : MonoBehaviour {
         arrow.transform.rotation = arrowBaseRotation;
 
         AnimationController.instance.resetScale();
+        laTrajectoire.resetTrajectory();
     }
 
     void jump()
@@ -139,7 +140,7 @@ public class GameplayController : MonoBehaviour {
 
     bool checkIfGrounded()
     {
-        RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.down, 0.01f, groundCheckLayer);
+        RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.down, 0.45f, groundCheckLayer);
 
         if (hit2D)
             return true;
@@ -151,7 +152,7 @@ public class GameplayController : MonoBehaviour {
     {
         arrow.transform.rotation = Quaternion.AngleAxis(angle, Vector3.forward);
         arrow.transform.localScale = new Vector3(arrowBaseScale.x + magnitude, arrowBaseScale.y + magnitude, arrowBaseScale.z);
-        laTrajectoire.simulatePath(vectorForce, forcePull);
+        laTrajectoire.simulatePath(vectorForce, 1f + ((forceJump - 1f) * (forcePull / rangePull)));
     }
 
     public void setVectorForce(Vector3 vectorDirection)

@@ -55,7 +55,7 @@ public class AnimationController : MonoBehaviour {
 
     public void landSqueeze(float maxVelocity)
     {
-        Debug.Log(0.0833f - (0.0833f * (Mathf.Abs(GameplayController.instance.getPreviousVelocityY()) / maxVelocity)));
+        //Debug.Log(0.0833f - (0.0833f * (Mathf.Abs(GameplayController.instance.getPreviousVelocityY()) / maxVelocity)));
 
         doTheJumpSqueeze = false;
         animator.Play("Land", 0, 0.0833f - (0.0833f * (Mathf.Abs(GameplayController.instance.getPreviousVelocityY()) / maxVelocity)));
