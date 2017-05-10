@@ -10,7 +10,7 @@ public class TrajectorySimulation : MonoBehaviour
     [SerializeField]
     private GameObject dot;
     [SerializeField]
-    private LayerMask wallBounceMask;
+    private LayerMask maskWallBounce;
 
     // Number of segments to calculate - more gives a smoother line
     public int segmentCount = 3;
@@ -23,6 +23,7 @@ public class TrajectorySimulation : MonoBehaviour
 	public Collider hitObject { get { return _hitObject; } }
 
     private GameObject[] dots;
+    private int layerMask = 1 << 9;
 
     private void Awake()
     {
@@ -40,6 +41,8 @@ public class TrajectorySimulation : MonoBehaviour
     /// </summary>
     public void simulatePath(Vector3 vectorForce, float forcePull)
 	{
+        resetTrajectory();
+
         Vector3 pVelocity = -vectorForce * forcePull;
 
         float velocity = Mathf.Sqrt((pVelocity.x * pVelocity.x) + (pVelocity.y * pVelocity.y));
@@ -51,6 +54,10 @@ public class TrajectorySimulation : MonoBehaviour
 
         fTime += 0.1f;
 
+        ContactFilter2D contact = new ContactFilter2D();
+
+        contact.SetLayerMask(maskWallBounce);
+
         for (int i = 1; i < segmentCount; i++)
         {
             float dx = velocity * fTime * Mathf.Cos(angle * Mathf.Deg2Rad);
@@ -61,8 +68,15 @@ public class TrajectorySimulation : MonoBehaviour
 
             Vector2 vectorDirectionRay = dots[i].transform.position - dots[i - 1].transform.position;
             float lenghtRay = vectorDirectionRay.magnitude;
-            RaycastHit2D hit = Physics2D.Raycast(dots[i - 1].transform.position, vectorDirectionRay, lenghtRay, wallBounceMask);
 
+            RaycastHit2D hit = Physics2D.Raycast(dots[i - 1].transform.position, vectorDirectionRay, lenghtRay, maskWallBounce);
+
+            if (hit.collider != null)
+            {
+                dots[i].transform.position = hit.point;
+                Debug.Log(dots[i].transform.position.x);
+                break;
+            }
 
             //dots[i].transform.eulerAngles = new Vector3(0, 0, Mathf.Atan2(pVelocity.y - (Physics.gravity.magnitude) * fTime, pVelocity.x) * Mathf.Rad2Deg);
             fTime += 0.1f;
@@ -73,7 +87,7 @@ public class TrajectorySimulation : MonoBehaviour
     {
         for (int i = 0; i < segmentCount; i++)
         {
-            //dots[i].transform.position = new Vector3(-10, -10, -10);
+            dots[i].transform.position = new Vector3(-10, -10, -10);
         }
     }
 }
