@@ -120,7 +120,6 @@ public class GameplayController : MonoBehaviour {
         arrow.transform.rotation = arrowBaseRotation;
 
         AnimationController.instance.resetScale();
-        laTrajectoire.resetTrajectory();
     }
 
     void jump()
