@@ -28,6 +28,7 @@ public class GameplayController : MonoBehaviour {
     private bool canJump = false;
     private float previousVelocityY = 0f;
     private TrajectorySimulation laTrajectoire;
+    private Vector2 bottomPlayer;
 
     void Awake()
     {
@@ -48,6 +49,7 @@ public class GameplayController : MonoBehaviour {
         arrowBaseRotation = arrow.transform.rotation;
         rBody = GetComponent<Rigidbody2D>();
         laTrajectoire = GetComponent<TrajectorySimulation>();
+        
     }
 
     // Use this for initialization
@@ -75,7 +77,7 @@ public class GameplayController : MonoBehaviour {
             }
         }
 
-        Debug.DrawRay(transform.position, new Vector2(0, -0.45f), Color.green);
+        //Debug.DrawRay(transform.position, new Vector2(0, -0.025f), Color.green);
     }
 
     private void FixedUpdate()
@@ -131,7 +133,7 @@ public class GameplayController : MonoBehaviour {
         canJump = false;
     }
 
-    void land()
+    public void land()
     {
         grounded = true;
         AnimationController.instance.landSqueeze(forceJump);
@@ -141,9 +143,12 @@ public class GameplayController : MonoBehaviour {
 
     bool checkIfGrounded()
     {
-        RaycastHit2D hit2D = Physics2D.Raycast(transform.position, Vector2.down, 0.45f, groundCheckLayer);
+        bottomPlayer = transform.position;
+        bottomPlayer = new Vector2(bottomPlayer.x, (bottomPlayer.y - (GetComponent<Collider2D>().bounds.size.y / 2)) + 0.01f);
 
-        if (hit2D)
+        RaycastHit2D hit2D = Physics2D.Raycast(bottomPlayer, Vector2.down, 0.025f, groundCheckLayer);
+
+        if (hit2D && Vector2.Distance(bottomPlayer, hit2D.point) > 0f)
             return true;
         else
             return false;
