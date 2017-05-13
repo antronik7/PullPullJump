@@ -9,6 +9,7 @@ public class ControllerController : MonoBehaviour {
 
     private float rangePull;
     private Vector3 previousPosition = new Vector3(0f, 0f, 0f);
+    private Vector3 previousMosPos;
 
     private void Awake()
     {
@@ -19,11 +20,19 @@ public class ControllerController : MonoBehaviour {
     void Start () {
 		
 	}
-	
-	// Update is called once per frame
-	void Update () {
 
-        Vector3 objectPosition = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+    private void OnEnable()
+    {
+        previousMosPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        smallController.transform.position = transform.position;
+    }
+
+    // Update is called once per frame
+    void Update () {
+
+        Vector3 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+        Vector3 objectPosition = smallController.transform.position + (mousePos - previousMosPos);
         objectPosition.z = 0f;
 
         Vector3 allowedPos = objectPosition - transform.position;
@@ -47,5 +56,6 @@ public class ControllerController : MonoBehaviour {
         }
 
         previousPosition = smallController.transform.position;
+        previousMosPos = mousePos;
     }
 }

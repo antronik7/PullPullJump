@@ -25,6 +25,7 @@ public class GameplayController : MonoBehaviour {
     private float forcePull = 0f;
     private Rigidbody2D rBody;
     private bool grounded = true;
+    private bool canJump = false;
     private float previousVelocityY = 0f;
     private TrajectorySimulation laTrajectoire;
 
@@ -61,15 +62,15 @@ public class GameplayController : MonoBehaviour {
             if(grounded)
             {
                 activateController();
+                canJump = true;
             }
         }
         else if(Input.GetMouseButtonUp(0))
         {
-            desactivateController();
-
             //rajouter canJump
-            if (grounded)
+            if (grounded && canJump)
             {
+                desactivateController();
                 jump();
             }
         }
@@ -127,6 +128,7 @@ public class GameplayController : MonoBehaviour {
         rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/rangePull))), ForceMode2D.Impulse);
         AnimationController.instance.jumpSqueeze(forceJump);
         grounded = false;
+        canJump = false;
     }
 
     void land()

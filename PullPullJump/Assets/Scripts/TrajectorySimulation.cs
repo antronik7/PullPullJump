@@ -46,12 +46,8 @@ public class TrajectorySimulation : MonoBehaviour
         fTimeX += 0.1f;
         fTimeY += 0.1f;
 
-        //faire le trajectoire des rebond
         //faire que la trajectoire ne depasse pas le sol
-        //faire que le controller est invisible
-        //faire que les mouvement son 1:1 avec la trajectoire
         //faire que la trajectoire est limiter a certain angle
-        //faire quon peut pas tire quand le perso est en lair
 
         for (int i = 1; i < segmentCount; i++)
         {
