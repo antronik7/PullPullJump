@@ -77,7 +77,9 @@ public class GameplayController : MonoBehaviour {
             }
         }
 
-        //Debug.DrawRay(transform.position, new Vector2(0, -0.025f), Color.green);
+        bottomPlayer = transform.position;
+        bottomPlayer = new Vector2(bottomPlayer.x, (bottomPlayer.y - (GetComponent<Collider2D>().bounds.extents.y)) + 0.01f);
+        Debug.DrawRay(bottomPlayer, new Vector2(0, -0.05f), Color.green);
     }
 
     private void FixedUpdate()
@@ -85,11 +87,11 @@ public class GameplayController : MonoBehaviour {
         if (grounded)
             return;
 
-        if (rBody.velocity.y <= 0 && checkIfGrounded())
+        /*if (rBody.velocity.y <= 0 && checkIfGrounded())
         {
             land();
             return;
-        }
+        }*/
 
         previousVelocityY = rBody.velocity.y;
     }
@@ -146,12 +148,24 @@ public class GameplayController : MonoBehaviour {
         bottomPlayer = transform.position;
         bottomPlayer = new Vector2(bottomPlayer.x, (bottomPlayer.y - (GetComponent<Collider2D>().bounds.size.y / 2)) + 0.01f);
 
-        RaycastHit2D hit2D = Physics2D.Raycast(bottomPlayer, Vector2.down, 0.025f, groundCheckLayer);
+        RaycastHit2D hit2D = Physics2D.Raycast(bottomPlayer, Vector2.down, 0.05f, groundCheckLayer);
 
         if (hit2D && Vector2.Distance(bottomPlayer, hit2D.point) > 0f)
             return true;
         else
             return false;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if(rBody.velocity.y == 0 && collision.gameObject.layer == 8)
+        {
+            Debug.Log("Jai lander");
+
+            if (!grounded)
+                land();
+
+        }
     }
 
     public void moveArrow(float angle, float magnitude)
