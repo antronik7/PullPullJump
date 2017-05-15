@@ -6,6 +6,8 @@ public class ControllerController : MonoBehaviour {
 
     [SerializeField]
     private GameObject smallController;
+    [SerializeField]
+    private float maxAngle;
 
     private float rangePull;
     private Vector3 previousPosition = new Vector3(0f, 0f, 0f);
@@ -39,9 +41,30 @@ public class ControllerController : MonoBehaviour {
 
         allowedPos = Vector3.ClampMagnitude(allowedPos, rangePull);
 
-        smallController.transform.position = transform.position + allowedPos;
+        Vector3 vectorToRotate = new Vector3(0, -allowedPos.magnitude, 0);
 
-        if(smallController.transform.position != previousPosition)
+        float angleMouse = Vector3.Angle(Vector3.down, allowedPos);
+        float angleFoRotation = angleMouse;
+
+        if (allowedPos.x < 0)
+            angleFoRotation = angleFoRotation * -1;
+
+        vectorToRotate = Quaternion.AngleAxis(Mathf.Clamp(angleFoRotation, -maxAngle, maxAngle), Vector3.forward) * vectorToRotate;
+
+        Vector3 finalVector = vectorToRotate;
+
+        /*if(angleMouse > maxAngle && allowedPos.magnitude > 0.1f)
+        {
+            float realY = allowedPos.y;
+            float realX = (vectorToRotate.x * realY) / vectorToRotate.y;
+
+            finalVector = new Vector3(realX, realY, 0f);
+        }*/
+
+        //smallController.transform.position = transform.position + allowedPos;
+        smallController.transform.position = transform.position + finalVector;
+
+        if (smallController.transform.position != previousPosition)
         {
             Vector3 difference = smallController.transform.position - transform.position;
 

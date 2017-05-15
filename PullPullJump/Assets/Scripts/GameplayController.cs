@@ -98,7 +98,7 @@ public class GameplayController : MonoBehaviour {
 
     void activateController()
     {
-        vectorForce = Vector3.up;
+        vectorForce = Vector3.down;
 
         //arrowSprite.enabled = true;
 
@@ -129,6 +129,7 @@ public class GameplayController : MonoBehaviour {
 
     void jump()
     {
+        Debug.Log(vectorForce);
         rBody.AddForce(-vectorForce * (1f + ((forceJump - 1f) * (forcePull/rangePull))), ForceMode2D.Impulse);
         AnimationController.instance.jumpSqueeze(forceJump);
         grounded = false;
@@ -160,11 +161,8 @@ public class GameplayController : MonoBehaviour {
     {
         if(rBody.velocity.y == 0 && collision.gameObject.layer == 8)
         {
-            Debug.Log("Jai lander");
-
             if (!grounded)
                 land();
-
         }
     }
 
